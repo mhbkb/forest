@@ -130,7 +130,7 @@ def prepareData():
     data['attr'] = data['search_term']+"\t"+data['brand']
     data['bullets'] = data['search_term']+"\t"+data['bullet1']+"\t"+data['bullet2']+"\t"+data['bullet3']+"\t"+data['bullet4']
 
-    data.to_csv('feathers.csv', sep='\t', encoding='ISO-8859-1')
+    data.to_csv('features.csv', sep='\t', encoding='ISO-8859-1')
     return all_data
 
 prepareData()

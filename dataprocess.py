@@ -1,4 +1,3 @@
-import preprocess
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
 from sklearn import pipeline, grid_search
@@ -36,9 +35,9 @@ def fmean_squared_error(ground_truth, predictions):
 RMSE  = make_scorer(fmean_squared_error, greater_is_better=False)
 
 def process():
-    all_data = preprocess.prepareData()
     train_count = TRAIN_COUNT
-    data = all_data[1]
+    data = pd.read_csv('features.csv', encoding="ISO-8859-1")
+    print('load successfully!')
 
     train = data.iloc[:train_count]
     test = data.iloc[train_count:]
@@ -47,6 +46,7 @@ def process():
     train_x = train[:]
     test_x = test[:]
 
+    print('randomForest starts:')
     rfr = RandomForestRegressor(n_estimators = 500, random_state = 31337, verbose = 1, n_jobs = -1)
     tfidf = TfidfVectorizer(ngram_range=(1, 1), stop_words='english')
     tsvd = TruncatedSVD(n_components=15, random_state = 31337)
