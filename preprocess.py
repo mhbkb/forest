@@ -3,31 +3,66 @@ from nltk.stem.snowball import SnowballStemmer
 import loaddata
 import numpy as np
 import re
+import string
+
+
+def removePunctuation(text):
+    result = ''
+    for s in re.sub('[%s]' % re.escape(string.punctuation), '', text).strip().split():
+        result += s.lower() + ' '
+    return result.strip()
+
+print(removePunctuation('Hi, you!'))
+print(removePunctuation(' No under_score!'))
+print(removePunctuation(" The Elephant's 4 cats. "))
+
+
+def digitize(text):
+    text = text.lower()
+    strNum = {'zero':0,'one':1,'two':2,'three':3,'four':4,'five':5,'six':6,'seven':7,'eight':8,'nine':9}
+    return (" ").join([str(strNum[z]) if z in strNum else z for z in text.split(" ")])
+
+print(digitize(' one cat'))
+print(digitize('two honeybee'))
+print(digitize(" Three Elephants"))
+
+
+def unitize(s):
+    s = re.sub(r"([0-9]+)( *)(inches|inch|in|'')\.?", r"\1in. ", s)
+    s = re.sub(r"([0-9]+)( *)(foot|feet|ft|')\.?", r"\1ft. ", s)
+    s = re.sub(r"([0-9]+)( *)(pounds|pound|lbs|lb)\.?", r"\1lb. ", s)
+    s = re.sub(r"([0-9]+)( *)(square|sq) ?\.?(feet|foot|ft)\.?", r"\1sq.ft. ", s)
+    s = re.sub(r"([0-9]+)( *)(cubic|cu) ?\.?(feet|foot|ft)\.?", r"\1cu.ft. ", s)
+    s = re.sub(r"([0-9]+)( *)(gallons|gallon|gals|gal)\.?", r"\1gal. ", s)
+    s = re.sub(r"([0-9]+)( *)(ounces|ounce|oz)\.?", r"\1oz. ", s)
+    s = re.sub(r"([0-9]+)( *)(centimeters|cm)\.?", r"\1cm. ", s)
+    s = re.sub(r"([0-9]+)( *)(millimeters|milimeters|mm)\.?", r"\1mm. ", s)
+    s = re.sub(r"([0-9]+)( *)(degrees|degree)\.?", r"\1deg. ", s)
+    s = re.sub(r"([0-9]+)( *)(volts|volt)\.?", r"\1volt. ", s)
+    s = re.sub(r"([0-9]+)( *)(watts|watt)\.?", r"\1watt. ", s)
+    s = re.sub(r"([0-9]+)( *)(amperes|ampere|amps|amp)\.?", r"\1amp. ", s)
+    return s
+
+print(unitize(' 5 inches'))
+print(unitize(' 342  ounces'))
+print(unitize(" 880degrees"))
 
 
 def stem(s):
     if isinstance(s, str):
-        strNum = {'zero':0,'one':1,'two':2,'three':3,'four':4,'five':5,'six':6,'seven':7,'eight':8,'nine':9}
-        s = (" ").join([str(strNum[z]) if z in strNum else z for z in s.split(" ")])
-        s = re.sub(r"([0-9]+)( *)(inches|inch|in|'')\.?", r"\1in. ", s)
-        s = re.sub(r"([0-9]+)( *)(foot|feet|ft|')\.?", r"\1ft. ", s)
-        s = re.sub(r"([0-9]+)( *)(pounds|pound|lbs|lb)\.?", r"\1lb. ", s)
-        s = re.sub(r"([0-9]+)( *)(square|sq) ?\.?(feet|foot|ft)\.?", r"\1sq.ft. ", s)
-        s = re.sub(r"([0-9]+)( *)(cubic|cu) ?\.?(feet|foot|ft)\.?", r"\1cu.ft. ", s)
-        s = re.sub(r"([0-9]+)( *)(gallons|gallon|gals|gal)\.?", r"\1gal. ", s)
-        s = re.sub(r"([0-9]+)( *)(ounces|ounce|oz)\.?", r"\1oz. ", s)
-        s = re.sub(r"([0-9]+)( *)(centimeters|cm)\.?", r"\1cm. ", s)
-        s = re.sub(r"([0-9]+)( *)(millimeters|milimeters|mm)\.?", r"\1mm. ", s)
-        s = re.sub(r"([0-9]+)( *)(degrees|degree)\.?", r"\1deg. ", s)
-        s = re.sub(r"([0-9]+)( *)(volts|volt)\.?", r"\1volt. ", s)
-        s = re.sub(r"([0-9]+)( *)(watts|watt)\.?", r"\1watt. ", s)
-        s = re.sub(r"([0-9]+)( *)(amperes|ampere|amps|amp)\.?", r"\1amp. ", s)
+        s = removePunctuation(s)
+        s = digitize(s)
+        s = unitize(s)
         stemmer = SnowballStemmer('english')
         s = (" ").join([stemmer.stem(z) for z in s.split(" ")])
         s = s.replace("  "," ")
         return s
     else:
         return "null"
+
+print(stem(' 5 inches  '))
+print(stem('   342  ounces  '))
+print(stem(" 880degrees  "))
 
 
 def seg_words(str1, str2):
