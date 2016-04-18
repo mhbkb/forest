@@ -12,7 +12,7 @@ def removePunctuation(text):
         result += s.lower() + ' '
     return result.strip()
 
-print(removePunctuation('Hi, you!'))
+print(removePunctuation('Hi, you! &'))
 print(removePunctuation(' No under_score!'))
 print(removePunctuation(" The Elephant's 4 cats. "))
 
@@ -114,6 +114,7 @@ def prepareData():
     data['bullet2'] = data['bullet2'].map(lambda x:stem(x))
     data['bullet3'] = data['bullet3'].map(lambda x:stem(x))
     data['bullet4'] = data['bullet4'].map(lambda x:stem(x))
+    data['material'] = data['material'].map(lambda x:stem(x))
 
     data['product_info'] = data['search_term']+"\t"+data['product_title'] +"\t"+data['product_description']
 
@@ -132,4 +133,7 @@ def prepareData():
     data['attr'] = data['search_term']+"\t"+data['brand']
     data['bullets'] = data['search_term']+"\t"+data['bullet1']+"\t"+data['bullet2']+"\t"+data['bullet3']+"\t"+data['bullet4']
 
+    data.to_csv('feathers.csv', sep='\t', encoding='utf-8')
     return all_data
+
+prepareData()
