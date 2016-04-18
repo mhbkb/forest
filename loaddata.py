@@ -10,6 +10,7 @@ def load_data():
     data_b2 = data_attr[data_attr.name == "Bullet02"][["product_uid", "value"]].rename(columns={"value": "bullet2"})
     data_b3 = data_attr[data_attr.name == "Bullet03"][["product_uid", "value"]].rename(columns={"value": "bullet3"})
     data_b4 = data_attr[data_attr.name == "Bullet04"][["product_uid", "value"]].rename(columns={"value": "bullet4"})
+    data_material = data_attr[data_attr.name == "Material"][["product_uid", "value"]].rename(columns={"value": "material"})
     train_count = data_train.shape[0]
     data = pd.concat((data_train, data_test), axis=0, ignore_index=True)
     data = pd.merge(data, data_product_desc, how='left', on='product_uid')
@@ -18,6 +19,7 @@ def load_data():
     data = pd.merge(data, data_b2, how='left', on='product_uid')
     data = pd.merge(data, data_b3, how='left', on='product_uid')
     data = pd.merge(data, data_b4, how='left', on='product_uid')
+    data = pd.merge(data, data_material, how='left', on='product_uid')
 
     return train_count, data
 
