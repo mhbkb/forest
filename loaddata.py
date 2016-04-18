@@ -23,4 +23,5 @@ def load_data():
 
     return train_count, data
 
+load_data()
 #print load_data()[1]['product_description']

@@ -8,6 +8,8 @@ from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics import mean_squared_error, make_scorer
 
+TRAIN_COUNT = 74067
+
 class cust_regression_vals(BaseEstimator, TransformerMixin):
     def fit(self, x, y=None):
         return self
@@ -15,7 +17,7 @@ class cust_regression_vals(BaseEstimator, TransformerMixin):
         d_col_drops=['id','relevance','search_term','product_title',
             'product_description','product_info','attr','brand','bullets',
             'bullet1','bullet2','bullet3','bullet4', 'len_of_b1',
-            'len_of_b2', 'len_of_b3', 'len_of_b4']
+            'len_of_b2', 'len_of_b3', 'len_of_b4', 'material']
         hd_searches = hd_searches.drop(d_col_drops,axis=1).values
         return hd_searches
 
@@ -35,7 +37,7 @@ RMSE  = make_scorer(fmean_squared_error, greater_is_better=False)
 
 def process():
     all_data = preprocess.prepareData()
-    train_count = all_data[0]
+    train_count = TRAIN_COUNT
     data = all_data[1]
 
     train = data.iloc[:train_count]
@@ -45,7 +47,7 @@ def process():
     train_x = train[:]
     test_x = test[:]
 
-    rfr = RandomForestRegressor(n_estimators = 500, random_state = 31337, verbose = 1)
+    rfr = RandomForestRegressor(n_estimators = 500, random_state = 31337, verbose = 1, n_jobs = -1)
     tfidf = TfidfVectorizer(ngram_range=(1, 1), stop_words='english')
     tsvd = TruncatedSVD(n_components=15, random_state = 31337)
     clf = pipeline.Pipeline([
@@ -54,6 +56,7 @@ def process():
                             ('cst',  cust_regression_vals()),
                             ('txt1', pipeline.Pipeline([('s1', cust_txt_col(key='search_term')), ('tfidf1', tfidf), ('tsvd1', tsvd)])),
                             ('txt2', pipeline.Pipeline([('s2', cust_txt_col(key='product_title')), ('tfidf2', tfidf), ('tsvd2', tsvd)])),
+                            ('txt3', pipeline.Pipeline([('s3', cust_txt_col(key='product_title')), ('tfidf3', tfidf), ('tsvd3', tsvd)])),
                             ('txt4', pipeline.Pipeline([('s4', cust_txt_col(key='brand')), ('tfidf4', tfidf), ('tsvd4', tsvd)]))
                             ]
                     )),
@@ -61,7 +64,7 @@ def process():
     param_grid = {
                     'rfr__n_estimators': [123,125,127],
                     'rfr__max_depth': [24],
-                    'rfr__max_features': [17]
+                    'rfr__max_features': [18]
                  }
     model = grid_search.GridSearchCV(estimator = clf, param_grid = param_grid,
         cv = 10, verbose = 250, scoring=RMSE)

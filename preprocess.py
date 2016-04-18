@@ -12,9 +12,9 @@ def removePunctuation(text):
         result += s.lower() + ' '
     return result.strip()
 
-print(removePunctuation('Hi, you! &'))
-print(removePunctuation(' No under_score!'))
-print(removePunctuation(" The Elephant's 4 cats. "))
+# print(removePunctuation('Hi, you! &'))
+# print(removePunctuation(' No under_score!'))
+# print(removePunctuation(" The Elephant's 4 cats. "))
 
 
 def digitize(text):
@@ -22,9 +22,9 @@ def digitize(text):
     strNum = {'zero':0,'one':1,'two':2,'three':3,'four':4,'five':5,'six':6,'seven':7,'eight':8,'nine':9}
     return (" ").join([str(strNum[z]) if z in strNum else z for z in text.split(" ")])
 
-print(digitize(' one cat'))
-print(digitize('two honeybee'))
-print(digitize(" Three Elephants"))
+# print(digitize(' one cat'))
+# print(digitize('two honeybee'))
+# print(digitize(" Three Elephants"))
 
 
 def unitize(s):
@@ -43,26 +43,23 @@ def unitize(s):
     s = re.sub(r"([0-9]+)( *)(amperes|ampere|amps|amp)\.?", r"\1amp. ", s)
     return s
 
-print(unitize(' 5 inches'))
-print(unitize(' 342  ounces'))
-print(unitize(" 880degrees"))
+# print(unitize(' 5 inches'))
+# print(unitize(' 342  ounces'))
+# print(unitize(" 880degrees"))
 
 
 def stem(s):
-    if isinstance(s, str):
-        s = removePunctuation(s)
-        s = digitize(s)
-        s = unitize(s)
-        stemmer = SnowballStemmer('english')
-        s = (" ").join([stemmer.stem(z) for z in s.split(" ")])
-        s = s.replace("  "," ")
-        return s
-    else:
-        return "null"
+    s = removePunctuation(s)
+    s = digitize(s)
+    s = unitize(s)
+    stemmer = SnowballStemmer('english')
+    s = (" ").join([stemmer.stem(z) for z in s.split(" ")])
+    s = s.replace("  "," ")
+    return s
 
-print(stem(' 5 inches  '))
-print(stem('   342  ounces  '))
-print(stem(" 880degrees  "))
+# print(stem(' 5 inches  '))
+# print(stem('   342  ounces  '))
+# print(stem(" 880degrees  "))
 
 
 def seg_words(str1, str2):
@@ -133,7 +130,7 @@ def prepareData():
     data['attr'] = data['search_term']+"\t"+data['brand']
     data['bullets'] = data['search_term']+"\t"+data['bullet1']+"\t"+data['bullet2']+"\t"+data['bullet3']+"\t"+data['bullet4']
 
-    data.to_csv('feathers.csv', sep='\t', encoding='utf-8')
+    data.to_csv('feathers.csv', sep='\t', encoding='ISO-8859-1')
     return all_data
 
 prepareData()
