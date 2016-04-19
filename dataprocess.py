@@ -56,7 +56,7 @@ def process():
                             ('cst',  cust_regression_vals()),
                             ('txt1', pipeline.Pipeline([('s1', cust_txt_col(key='search_term')), ('tfidf1', tfidf), ('tsvd1', tsvd)])),
                             ('txt2', pipeline.Pipeline([('s2', cust_txt_col(key='product_title')), ('tfidf2', tfidf), ('tsvd2', tsvd)])),
-                            ('txt3', pipeline.Pipeline([('s3', cust_txt_col(key='product_title')), ('tfidf3', tfidf), ('tsvd3', tsvd)])),
+                            ('txt3', pipeline.Pipeline([('s3', cust_txt_col(key='material')), ('tfidf3', tfidf), ('tsvd3', tsvd)])),
                             ('txt4', pipeline.Pipeline([('s4', cust_txt_col(key='brand')), ('tfidf4', tfidf), ('tsvd4', tsvd)]))
                             ]
                     )),
