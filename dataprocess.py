@@ -32,11 +32,11 @@ def fmean_squared_error(ground_truth, predictions):
     fmean_squared_error_ = mean_squared_error(ground_truth, predictions)**0.5
     return fmean_squared_error_
 
-RMSE  = make_scorer(fmean_squared_error, greater_is_better=False)
+RMSE = make_scorer(fmean_squared_error, greater_is_better=False)
 
 def process():
     train_count = TRAIN_COUNT
-    data = pd.read_csv('features.csv', encoding="ISO-8859-1")
+    data = pd.read_csv('features.csv', encoding="ISO-8859-1", sep='\t')
     print('load successfully!')
 
     train = data.iloc[:train_count]
@@ -47,7 +47,8 @@ def process():
     test_x = test[:]
 
     print('randomForest starts:')
-    rfr = RandomForestRegressor(n_estimators = 500, random_state = 31337, verbose = 1, n_jobs = -1)
+    # n_estimators how many trees in forest, default 10
+    rfr = RandomForestRegressor(n_estimators = 500, random_state = 31, verbose = 1, n_jobs = -1)
     tfidf = TfidfVectorizer(ngram_range=(1, 1), stop_words='english')
     tsvd = TruncatedSVD(n_components=15, random_state = 31337)
     clf = pipeline.Pipeline([
@@ -56,7 +57,6 @@ def process():
                             ('cst',  cust_regression_vals()),
                             ('txt1', pipeline.Pipeline([('s1', cust_txt_col(key='search_term')), ('tfidf1', tfidf), ('tsvd1', tsvd)])),
                             ('txt2', pipeline.Pipeline([('s2', cust_txt_col(key='product_title')), ('tfidf2', tfidf), ('tsvd2', tsvd)])),
-                            ('txt3', pipeline.Pipeline([('s3', cust_txt_col(key='material')), ('tfidf3', tfidf), ('tsvd3', tsvd)])),
                             ('txt4', pipeline.Pipeline([('s4', cust_txt_col(key='brand')), ('tfidf4', tfidf), ('tsvd4', tsvd)]))
                             ]
                     )),
@@ -71,7 +71,7 @@ def process():
     model.fit(train_x, train_y)
 
     print("Best parameters found by grid search:")
-    print(model.best_params_)
+    print(model.best_estimator_)
     print("Best CV score:")
     print(model.best_score_)
 
