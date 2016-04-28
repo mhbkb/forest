@@ -128,7 +128,7 @@ Wanting Jiang\\
 \maketitle
 \begin{abstract}
 
-Search relevancy is an implicit measure Home Depot uses to gauge how quickly they can get customers to the right products. Currently, human raters evaluate the impact of potential changes to their search algorithms, which is a slow and subjective process. By removing or minimizing human input in search relevance evaluation, Home Depot hopes to increase the number of iterations their team can perform on the current search algorithms. In this paper, after comparing with other models, we are going to apply Random Forest to predict the relevancy between search queries and the products in a gauge of number 1 to 3 in an effort to make accurate and efficient prediction. 
+Search relevancy is an implicit measure Home Depot uses to gauge how quickly they can get customers to the right products. Currently, human raters evaluate the impact of potential changes to their search algorithms, which is a slow and subjective process. By removing or minimizing human input in search relevance evaluation, Home Depot hopes to increase the number of iterations their team can perform on the current search algorithms. In this paper, we first use stemming and other approached to do feature engineering. Then, after comparing with other models, we apply Random Forest to predict the relevancy between search queries and the products in a gauge of number 1 to 3 in an effort to make accurate and efficient prediction. We finally achieved 0.47105 which ranks 340 in the Leaderboard, with more than 2000 teams and the first one scored 0.43294.
 \end{abstract}
 
 %
@@ -153,7 +153,8 @@ Our goal is to develop a model that can improve Home Depot's customers' shopping
 This paper is structured as follow. First, the original datasets we adopted from Kaggle is described and explained, which is followed by how the data was preprocessed so as to generate features that can be used in models including stemming and generating new features. Then, there will be a discussion of choosing Random Forest over other models and how it works. Finally the preliminary empirical result will be displayed and elaborated. 
 
 \section{Datasets}
-Datasets for this project are from Home Depot's website which contains a number of products and real customer search terms. Each pair in the dataset was evaluated by at least three human raters. The rate values are from 1 to 3, where 3 is the most relevant, 2 somewhat relevant and 1 irrelevant. The provided relevance scores are the average values of the ratings. We adopt the data from Kaggle website including mainly the training data and testing data.\\
+
+Datasets for this project are from Home Depot's website which contains a number of products and real customer search terms. To create the ground truth labels, Home Depot has crowdsourced the search/product pairs to multiple human raters. Each pair in the dataset was evaluated by at least three human raters. The rate values are from 1 to 3, where 3 is the most relevant, 2 somewhat relevant and 1 irrelevant. The provided relevance scores are the average values of the ratings. We adopt the data from Kaggle website including mainly the training data and testing data.\\
 
 \subsection{Datasets Description}
 Here are the original datasets provided by Kaggle.com:
@@ -208,9 +209,10 @@ value			   & value of the attribute \\ \hline
 The training data and product description data also provide the above data fields which can be later applied as features. However, features such as product description or search term can not be directly used and also have potential to be restructured to generate new features. So in bellow preprocessing part we will elaborate on how we manipulate the original data to generate features for our model.
 
 \section{Algorithms}
-\subsection{Preprocessing}
+In this project, the most crucial part is feature engineering. In our given data, there are just product title, attribute and description for product information. And on the user side, we only have query data. Therefore, cleaning data, trimming features, and generating new data is the key to a more accurate prediction in this case.
 
-There are two kinds of attributes in the dataset. The first one is some common attributes, which all products have that, such as title and product description. Another one is extended information which means not every product will have these attributes, such as Brand and Length.
+\subsection{Preprocessing}
+There are two kinds of attributes in the dataset. The first one is some common attributes, which all products have that, such as title and product description. Another one is extended information which means not every product will have these attributes, such as Brand and Length.\\
 \begin{table}[ht]
 \centering
 \caption{List of Features}
@@ -237,16 +239,21 @@ Some extended attributes are also very useful in calculating search relevance, s
 Other extended attributes like Length, Bullet01, which might be helpful in our calculation. But it is hard to decide which one should be used in the model, so in our experiment, we will test several combination of the attributes, and choose the best as our final selected attributes.
 
 \subsubsection{Data Cleaning}
-The given raw data contains various forms of words and the difference in the style make is hard to give accurate prediction. Therefore, we first clean up the data with the following approaches. First, for all the capitalized or uppercase words/letters, we lowercase them so that the data is robust to the case sensitiveness. Second, we remove punctuations. Punctuation is helpful when we read, but in models it is hard to incorporate them without affecting the accuracy. Third, we digitalize all the quantities such as one oz transferred to 1oz. Fourth, units are unified into abbreviations, such as 5 inches transferred into 5in.. Fifth, we corrected mis-spelt words, such as \lq correet' was updated to \lq correct'. 
+The given raw data contains various forms of words and the difference in the style make is hard to give accurate prediction. Therefore, we first clean up the data with the following approaches. First, for all the capitalized or uppercase words/letters, we lowercase them so that the data is robust to the case sensitiveness. Second, we remove punctuations. Punctuation is helpful when we read, but in models it is hard to incorporate them without affecting the accuracy. Third, we digitalize all the quantities such as one oz transferred to 1oz. Fourth, units are unified into abbreviations, such as 5 inches transferred into 5in.. Fifth, we corrected mis-spelt words, such as \lq \textit{correet}' was updated to \lq \textit{correct}'. 
 
 \subsubsection{Data Stemming}
-In order to improve the precision of the result, we will use Snowball to do stemming on the selected attributes and queries.\cite{snowball} Other than applying given Snowball stemming tool to do basic stemming, we also explore the data and add more stemming methods in our preprocessing stage. There are many units shown in the data such as unit of length, unit of weight, unit of space, etc. We unified the various impressions into one. For example, ``inches", ``in" or ``inch" are all stemmed into ``in."; ``pound", ``pounds", ``lbs" and ``lb" are stemmed into ``lb.". We also eliminate punctuations and redundant space in the text.
+In order to improve the precision of the result, we will use Snowball to do stemming on the selected attributes and queries.\cite{snowball} Other than applying given Snowball stemming tool to do basic stemming, we also explore the data and add more stemming methods in our preprocessing stage. There are many units shown in the data such as unit of length, unit of weight, unit of space, etc. We unified the various impressions into one. For example, ``\textit{inches}", ``\textit{in}" or ``\textit{inch}" are all stemmed into ``\textit{in}."; ``\textit{pound}", ``\textit{pounds}", ``\textit{lbs}" and ``\textit{lb}" are stemmed into ``lb.". We also eliminate punctuations and redundant space in the text.
 
 \subsubsection{Data Normalizations}
 Instead of simply assigning same weight to all the words in the attributes, we applied tf-idf to normalize data fields that are consists of words. We calculate the term frequency-inverse document frequency ratio of a word in search query or product description.\cite{tf-idf, tf-idf1} This feature is very useful in terms of the importance or the weight of a word in the text.
 
 \subsubsection{Feature Preparation}
 For the purpose of getting the importance of the word in the attributes, we calculate the ratio of each word in each attribute, based on the length of the query. In addition to the original features, we generated new features based on the original data. We generate bullets feature which combined all bullets of a product into one. We also combined search term with product title into a new feature called product info. \\
+
+After preparing the features, we generated a final training dataset, with 23 columns in total, including id, relevance, brand, search\_term, product\_description, product\_title, and product\_info, len\_of\_title, len\_of\_description, len\_of\_brand, query\_in\_title, query\_in\_description, query\_last\_word\_in\_title, query\_last\_word\_in\_description, ratio\_title, ratio\_description, word\_in\_brand, ratio\_brand, search\_term\_feature. For some of the numeric features, we calculated the properties and here are the description of those features in our final training dataset.\\
+
+\includegraphics[width=8cm, height=5cm]{scr-id.png}\\
+\includegraphics[width=8cm, height=8cm]{scr-query.png}
 
 \subsection{Modelling}
 With features prepared for the model, we then compare different models to apply based on their pros and cons. Random forest is better at feature selection given that we have many features to choose from.\cite{rf0} It is also very robust against overfitting.\cite{rfwiki, rf1} Naive Bayes is easy to train and understand. However, it based on the "naive" assumption that all variables are uncorrelated with each other. What's more it is fragile to overfitting compared with Random Forest. Regarding logistic regression, it is hard for it to handle features that are non-linear. What's more, Random Forest is very powerful when handling large dataset with high dimensions.\cite{rf2, rf3} Therefore we choose Random Forests as our core method.
@@ -277,17 +284,23 @@ The evaluation we use, or based on Kaggle's evaluating standards, RMSE is used, 
 RMSE & = &\sqrt{ \frac{1}{n} \sum_{i = 1}^{n}({\mathbf{y}_i  -  \hat{\mathbf{y}_i})}} \\
 \end{eqnarray*}
 In python, RMSE = mean\_squared\_error(y, y\_pred)**0.5. Kaggle uses this number as the score reference in it's Leaderboard.
+
 \section{Empirical Result}
 
 We've conducted five sets of experiment with random forest with different set of features and our rank in leaderboard varies for each submission. These three experiments are called easy forest, complex forest with less features, and complex forest with more features. \\
 
 In the first experiment, we incorporate features from original data without any modification such as cleaning or stemming. This model yields a RMSE of 0.48721. In the second experiment, we modify the features by cleaning them and processed with stemming. Based on the data we acquired after the above cleaning, stemming, and normalizing, there are 11 features selected to build a satisfying model. Those features we included are id,  product\_title, product\_uid, relevance, search\_term, product\_description, brand, product\_info, len\_of\_query, word\_in\_title, word\_in\_description. The score has improved by 0.003, which is 0.48462. However, none of these two experiments adopted data transformation, which is a deep modification of the original data.\\
 
-In our third experiment, we generated a bunch of new features. The features we've adopted are  id,  product\_title, product\_uid, relevance, search\_term, product\_description, brand, product\_info, len\_of\_query, word\_in\_title, word\_in\_description, brand\_feature, and search\_term\_feature. In total of 13 features. However, we used tf-idf on search\_term, product\_title and brand and generated new features for this model. In the meantime, some of the features, such as id, relevance, brand, search\_term, product\_description, product\_title, and product\_info, after being transformed or found less significant, are discarded. In this experiment, the score is 0.47939, which is higher than the previous experiment by 0.005.
+In our third experiment, we generated a bunch of new features. The features we've adopted are  id,  product\_title, product\_uid, relevance, search\_term, product\_description, brand, product\_info, len\_of\_query, word\_in\_title, word\_in\_description, brand\_feature, and search\_term\_feature. In total of 13 features. Also, we used tf-idf on search\_term, product\_title and brand and generated new features for this model. In the meantime, some of the features, such as id, relevance, brand, search\_term, product\_description, product\_title, and product\_info, after being transformed or found less significant, are discarded. In this experiment, the score is 0.47939, which is higher than the previous experiment by 0.005. And our rank in Leaderboard increased accordingly.\\
+
+Next, we tried to use more features we generated. Features such as the lengths, the last word, words of query shown in title, ratios etc are taken into the model. And we initially include 23 features, including id, relevance, brand, search\_term, product\_description, product\_title, and product\_info, len\_of\_title, len\_of\_description, len\_of\_brand, query\_in\_title, query\_in\_description, query\_last\_word\_in\_title, query\_last\_word\_in\_description, ratio\_title, ratio\_description, word\_in\_brand, ratio\_brand, search\_term\_feature. Like the previous experiment, we also dropped less significant features and calculate tf-idf for search\_term, product\_title and brand, with weight or 0.5, 0.25, 0.25 respectively. With more features added, this model is more robust than the previous one which has less features, and the RMSE is improved to 0.47181, which is 0.008 lower, with the rank increased to around 300.\\
+
+After we have a set of features and the model is chosen, it is really difficult to improve the result even slightly after 3 or 4 rounds of improvements. But we managed to decrease the RMSE after trying many approaches.\\
+
+Our fifth experiment is to modify the transformed feature especially tf-idf feature. The above 23 features performs good in our previous experiment so they are kept in this experiment as well. Regarding tf-idf feature, we decided to include product\_description, and redistributed the weight for each tf-idf feature. For search\_term, product\_title, product\_description and brand, we assigned 0.5, 0.25, 0.1 and 0.5 respectively. And the result of our RMSE dropped to 0.47105, which is slightly better than the previous experiment.
 
 
 
-\section{Conclusion}
 
 \begin{thebibliography}{9}
 \bibitem{latexcompanion} 
